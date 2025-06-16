@@ -57,7 +57,7 @@ CREATE TABLE noticia (
    fecha_publicacion DATETIME DEFAULT GETDATE(),
    portal_id INT FOREIGN KEY REFERENCES portales_noticia(id),
    tematica_id INT FOREIGN KEY REFERENCES tematica_noticias(id),
-   autor_id NVARCHAR(100)
+   autor NVARCHAR(100)
 );
 GO
 
@@ -86,4 +86,13 @@ CREATE TABLE noticias_favoritas (
    id INT PRIMARY KEY IDENTITY,
    usuario_id INT FOREIGN KEY REFERENCES usuarios(id) ON DELETE CASCADE,
    noticia_id INT FOREIGN KEY REFERENCES noticia(id) ON DELETE CASCADE,
-)
+);
+GO;
+
+CREATE TABLE portales_bloq (
+    id INT PRIMARY KEY IDENTITY,
+    usuario_id INT FOREIGN KEY REFERENCES usuarios(id) ON DELETE CASCADE,
+    portal_id INT FOREIGN KEY REFERENCES portales_noticia(id) ON DELETE CASCADE,
+    bloq BIT NOT NULL DEFAULT 1
+);
+GO;
