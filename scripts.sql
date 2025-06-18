@@ -127,13 +127,12 @@ create procedure portales_total_bloq
             and portales_bloq.usuario_id = @usuario_id;
 GO;
 
-create procedure obtener_noticias_usuario
+CREATE procedure obtener_noticias_usuario
     @usuario_id int
     as
 SELECT
     noticia.id,
     noticia.titulo,
-    noticia.resumen,
     noticia.fecha_publicacion,
     noticia.url_original,
     noticia.portal_id,
@@ -144,7 +143,9 @@ SELECT
     interaccion_noticia_usuario.id as interaccion_id,
     interaccion_noticia_usuario.fecha_leido,
     interaccion_noticia_usuario.utilidad,
-    interaccion_noticia_usuario.resumen_claro
+    interaccion_noticia_usuario.resumen_claro,
+    config_usuarios.nivel_resumen,
+    noticia.contenido
 FROM noticia
 LEFT JOIN interaccion_noticia_usuario
   ON noticia.id = interaccion_noticia_usuario.noticia_id
@@ -159,20 +160,25 @@ INNER JOIN preferencia_noticias_usuario
 LEFT JOIN portales_bloq
   ON portales_bloq.portal_id = noticia.portal_id
   AND portales_bloq.usuario_id = @usuario_id
+left join config_usuarios
+on config_usuarios.usuario_id = @usuario_id
 WHERE (portales_bloq.portal_id IS NULL or portales_bloq.bloq = 0)
-  AND noticia.resumen IS NOT NULL
   AND preferencia_noticias_usuario.interesa = @usuario_id
-order by noticia.fecha_publicacion desc;
-go;
+order by noticia.fecha_publicacion desc
+go
 
-create procedure get_noticia_usuario
+
+
+
+
+CREATE procedure get_noticia_usuario
     @usuario_id int,
     @noticia_id int
 as
 SELECT
     noticia.id,
     noticia.titulo,
-    noticia.resumen,
+    noticia.contenido,
     noticia.fecha_publicacion,
     noticia.url_original,
     noticia.portal_id,
@@ -183,7 +189,8 @@ SELECT
     interaccion_noticia_usuario.id as interaccion_id,
     interaccion_noticia_usuario.fecha_leido,
     interaccion_noticia_usuario.utilidad,
-    interaccion_noticia_usuario.resumen_claro
+    interaccion_noticia_usuario.resumen_claro,
+    config_usuarios.nivel_resumen
 FROM noticia
 INNER JOIN tematica_noticias
     ON noticia.tematica_id = tematica_noticias.id
@@ -192,5 +199,8 @@ INNER JOIN portales_noticia
 LEFT JOIN interaccion_noticia_usuario
     ON noticia.id = interaccion_noticia_usuario.noticia_id
    AND interaccion_noticia_usuario.usuario_id = @usuario_id
-WHERE noticia.id = @noticia_id;
-go;
+LEFT JOIN config_usuarios
+    ON config_usuarios.usuario_id = @usuario_id
+WHERE noticia.id = @noticia_id
+go
+
